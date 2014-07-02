@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>JGraph</title>
+	<style>
+		body {
+			padding: 0px;
+			margin: 20px;
+			border: 1px solid black;
+		}
+	</style>
+</head>
+
+<body>
+<canvas id="container"></canvas>
+
+
+<script src="jgraph.js"></script>
+<script src="jmaze.js"></script>
+<script src="util.js"></script>
+<script>
+
+	width = window.innerWidth;
+	height = window.innerHeight;
+
+	container = document.getElementById("container")
+	container.width = width
+	container.height = height;
+
+
+	N = 40
+	M = 24
+
+
+	N = 200
+	M = 200
+
+	positions = {}
+	nodes = {}
+
+	nodes_count = N*M
+	for (var i=0;i<N; ++i){
+		for (var j=0; j<M; ++j){
+
+			w = j*N + i
+			neighbors = []
+			if (i<N-1) neighbors.push((w+1) + "")
+			if (j<M-1) neighbors.push((w+N) + "")
+			if (i>0) neighbors.push((w-1) + "")
+			if (j>0) neighbors.push((w-N) + "")
+			nodes[w] =  neighbors
+			positions[w] = {}
+			positions[w].x = 50 + 200*i
+			positions[w].y = -(50 + 150*j)
+
+		}
+
+
+	}
+
+	cellSize = [36, 31]
+	cellSize = [3, 3]
+	g = new JGraph(nodes)
+
+	n = Date.now()
+	a = g.PrimsAlgorithm()
+	console.log((Date.now() - n)/1000)
+
+	m = new JMaze(new JGraph(a), cellSize, [M, N])
+	m.drawMazeToCanvas(container, 0, 0)
+	m.computeNodesPosition()
+
+
+	container.addEventListener("click", function(e){
+
+
+
+		xPosition = e.offsetX;
+		yPosition = e.offsetY;
+
+		iIndex = ~~(yPosition/m.cellSize[1])
+		jIndex = ~~(xPosition/m.cellSize[0])
+
+
+		nodeClicked = m.getNodeAtPosition(iIndex, jIndex);
+
+
+		if (!m.initialNode)
+		{
+			m.initialNode = nodeClicked
+			m.animatedDrawMazeToCanvas(container)
+		} else {
+
+			m.animatedMazeFrontier.push(nodeClicked)
+		}
+
+
+
+
+	}, false)
+
+
+
+
+
+</script>
+</body>
