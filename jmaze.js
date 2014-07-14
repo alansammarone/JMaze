@@ -168,48 +168,77 @@ JMaze = function(graph, cellSize, cellCount) {
 			self.drawCellPixelDataToImageData(self.getSolidColor(self.getRandomColor()), initialNodePosition[0], initialNodePosition[1])
 
 
-			sat = .8
-			lightness = .65
+			startTime = Date.now()
 
-			distanceInGraph = 50
-			im = 10000
-			huesArray = {}
-			for (var i=0; i<im; ++i) {
-				huesArray[i] = (i % 270)/270
-				huesArray[i] = hslToRgb(huesArray[i], sat, lightness);
-				huesArray[i].push(255)
-			}
+			distanceInGraph = 0;
+			missingNodes = Object.keys(self.graph.nodes)
 
+			saturation = .5
+			lightness = .6
 
+			minimumFrontierSize = 1
 
 
 		} else {
 
-
+			hue = .5 + Math.sin(distanceInGraph/80)/5
+			rgbColor = hslToRgb(hue, saturation, lightness)
+			rgbColor.push(255)
 			newFrontier = []
-			for (var i in self.animatedMazeFrontier) {
-				thisNeighbors = self.graph.getNeighbors(self.animatedMazeFrontier[i])
-				for (var n in thisNeighbors) {
-					if (self.animatedVisitedNodes.indexOf(thisNeighbors[n]) == -1) {
-						self.animatedVisitedNodes.push(thisNeighbors[n])
-						newFrontier.push(thisNeighbors[n])
-						nodePosition = self.getNodePosition(thisNeighbors[n])
-						rgbColor = huesArray[distanceInGraph]
+			animatedMazeFrontierLength = self.animatedMazeFrontier.length
 
-						self.drawCellPixelDataToImageData(self.getSolidColor(rgbColor), nodePosition[0], nodePosition[1])
+
+			//console.log(animatedMazeFrontierLength)
+
+			if (animatedMazeFrontierLength < minimumFrontierSize) {
+				randomNotVisitedNode = parseInt(missingNodes[~~(Math.random()*missingNodes.length)])
+				self.animatedMazeFrontier.push(randomNotVisitedNode + 1)
+				self.animatedMazeFrontier.push(randomNotVisitedNode - 1)
+				self.animatedMazeFrontier.push(randomNotVisitedNode + self.totalMazeWidth)
+				self.animatedMazeFrontier.push(randomNotVisitedNode - self.totalMazeWidth)
+
+			} else {
+
+
+				for (var i=0; i<animatedMazeFrontierLength; ++i) {
+
+
+					thisNeighbors = self.graph.getNeighbors(self.animatedMazeFrontier[i])
+					neighborsLength = thisNeighbors.length
+					for (var n=0; n<neighborsLength; ++n) {
+
+						indexOfThisNode = missingNodes.indexOf(thisNeighbors[n])
+
+						if (indexOfThisNode != -1) {
+							missingNodes.splice(indexOfThisNode, 1)
+							newFrontier.push(thisNeighbors[n])
+							nodePosition = self.getNodePosition(thisNeighbors[n])
+							self.drawCellPixelDataToImageData(self.getSolidColor(rgbColor), nodePosition[0], nodePosition[1])
+						}
+
 					}
+
+
 				}
+
+				self.animatedMazeFrontier = newFrontier
 
 
 			}
 
+
+
+
 			distanceInGraph++;
 
 
-			self.animatedMazeFrontier = newFrontier
+
+
 
 		}
 
+
+		if (missingNodes.length == 0 && typeof(endTime) == 'undefined') {endTime = Date.now(); console.log((endTime-startTime)/1000)}
 
 		context.putImageData(self.animationMazePixelData, 0, 0)
 
@@ -244,14 +273,16 @@ JMaze = function(graph, cellSize, cellCount) {
 
 
 
-
 		for (var l=0; l<self.cellSize[1]; ++l) { //Loop through cellPixelData pixel lines
-			linePixelData = cellPixelData.slice(l*self.cellSize[0]*4, ((l + 1)*cellSize[0])*4)
-			mazePixelDataStart = 4*self.cellSize[0] * (self.cellCount[1] * (l + i*self.cellSize[1]) + j)
+			linePixelData = cellPixelData.slice(l*self.cellSize[0] << 2, ((l + 1)*cellSize[0])<<2)
+			mazePixelDataStart = (self.cellSize[0] << 2) * (self.cellCount[1] * (l + i*self.cellSize[1]) + j)
 			self.animationMazePixelData.data.set(linePixelData, mazePixelDataStart)
 
 		}
 	}
+
+
+
 
 
 	this.getSolidColor = function(color){

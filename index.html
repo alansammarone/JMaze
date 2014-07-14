@@ -4,7 +4,11 @@
 	<style>
 		body {
 			padding: 0px;
-			margin: 20px;
+			margin: 0px;
+			
+		}
+
+		canvas {
 			border: 1px solid black;
 		}
 	</style>
@@ -23,16 +27,16 @@
 	height = window.innerHeight;
 
 	container = document.getElementById("container")
-	container.width = width
-	container.height = height;
+	
+	alert("Please wait a bit, this is hard...")
 
+	N = 300
+	M = 150
 
-	N = 40
-	M = 24
+	cellSize = [4, 4]
 
-
-	N = 200
-	M = 200
+	container.width = cellSize[0] * N
+	container.height = cellSize[1] * M
 
 	positions = {}
 	nodes = {}
@@ -48,31 +52,27 @@
 			if (i>0) neighbors.push((w-1) + "")
 			if (j>0) neighbors.push((w-N) + "")
 			nodes[w] =  neighbors
-			positions[w] = {}
-			positions[w].x = 50 + 200*i
-			positions[w].y = -(50 + 150*j)
+
 
 		}
 
 
 	}
 
-	cellSize = [36, 31]
-	cellSize = [3, 3]
+	
 	g = new JGraph(nodes)
 
-	n = Date.now()
-	a = g.PrimsAlgorithm()
-	console.log((Date.now() - n)/1000)
+	p = g.PrimsAlgorithm()
 
-	m = new JMaze(new JGraph(a), cellSize, [M, N])
-	m.drawMazeToCanvas(container, 0, 0)
+	m = new JMaze(new JGraph(p), cellSize, [M, N])
+
 	m.computeNodesPosition()
 
 
+	alert("Click anywhere inside the black box.")
+
+
 	container.addEventListener("click", function(e){
-
-
 
 		xPosition = e.offsetX;
 		yPosition = e.offsetY;
@@ -93,12 +93,7 @@
 			m.animatedMazeFrontier.push(nodeClicked)
 		}
 
-
-
-
 	}, false)
-
-
 
 
 

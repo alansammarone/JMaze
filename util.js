@@ -20,5 +20,44 @@ function hslToRgb(h, s, l){
         b = hue2rgb(p, q, h - 1/3);
     }
 
+
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+var hslToRgbArray = {}
+
+function hslToRgbDynamic(h, s, l) {
+
+    h = h.toFixed(3)
+    hash = h + "_" + s + "_" + l
+    if (hash in hslToRgbArray) { return hslToRgbArray[hash]}
+    else {
+        c = hslToRgb(h, s, l)
+        hslToRgbArray[hash] = c
+        return c
+    }
+
+}
+
+function timeIt(pieceOfCode, numberOfSamples, testName){
+
+
+    if (!numberOfSamples) numberOfSamples = 10
+
+
+
+    timestampBefore = Date.now()
+
+    for (var i=0; i<numberOfSamples; ++i) pieceOfCode()
+
+    timestampAfter = Date.now()
+
+    totalTime = (timestampAfter - timestampBefore)
+
+    console.log(testName + ": average running time is " + totalTime.toFixed(5) + " miliseconds, averaged over " + numberOfSamples + " samples.")
+
+
+
+
+
 }
